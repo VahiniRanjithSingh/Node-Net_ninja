@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
     //console.log(req.url, req.method);
 
     //lodash
-    const num = _.random(0, 20);
+    const num = _.random(0, 24);
     console.log(num);
 
     const greet = _.once(() => {
