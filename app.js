@@ -35,6 +35,7 @@ app.set('view engine', 'ejs');
 
 //middleware and static files
 app.use(express.static('public'));
+app.use(express.urlencoded({extended:true})); //for accepting the data in the form
 app.use(morgan('dev'));
 
 // //mongoose and mongo sandbox routes
@@ -99,6 +100,48 @@ app.get('/blogs', (req, res) => {
     Blog.find().sort({ createdAt: -1 })
     .then((result) => {
         res.render('index', {title:'All Blogs', blogs: result});
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+});
+
+app.post('/blogs', (req, res) => {
+    //cretae instance of blog and attach the data in it
+    const blog = new Blog(req.body);
+    //save that instance also the method is asynchronous
+    blog.save()
+    .then((result) => {
+        res.redirect('/blogs');
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+});
+
+app.get('/blogs/:id', (req, res) => {
+    //to extract that id
+    const id = req.params.id;
+    //retrieve doc from DB
+    Blog.findById(id)
+    .then((result) => {
+        //render the details page so we can create a view
+        res.render('details', { blog: result, title: 'Blog Details' });
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+});
+
+app.delete('/blogs/:id', (req, res) => {
+    //to extract that id
+    const id = req.params.id;
+    //retrieve doc from DB
+    Blog.findByIdAndDelete(id)
+    .then((result) => {
+        //send back some json to frontend(browser)
+        //req is ajax so no redirect.therefore now this json data will have redirect property
+        res.json({ redirect:'/blogs' })
     })
     .catch((err) => {
         console.log(err);
