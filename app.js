@@ -1,7 +1,8 @@
 const express = require ('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const Blog = require('./models/blog');
+//const Blog = require('./models/blog'); - notneeded coz we are not interacting with the blog model directly from this file(this is now at blogRoutes.js)
+const blogRoutes = require('./routes/blogRoutes');
 
 //express app
 const app = express();
@@ -95,62 +96,11 @@ app.get('/about', (req,res) => {
     res.render('about', {title : 'About'});
 });
 
+
 //blog routes
-app.get('/blogs', (req, res) => {
-    Blog.find().sort({ createdAt: -1 })
-    .then((result) => {
-        res.render('index', {title:'All Blogs', blogs: result});
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-});
+//(all the routes are pasted in separate file)-now we gonna import that file
+app.use('/blogs', blogRoutes);
 
-app.post('/blogs', (req, res) => {
-    //cretae instance of blog and attach the data in it
-    const blog = new Blog(req.body);
-    //save that instance also the method is asynchronous
-    blog.save()
-    .then((result) => {
-        res.redirect('/blogs');
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-});
-
-app.get('/blogs/:id', (req, res) => {
-    //to extract that id
-    const id = req.params.id;
-    //retrieve doc from DB
-    Blog.findById(id)
-    .then((result) => {
-        //render the details page so we can create a view
-        res.render('details', { blog: result, title: 'Blog Details' });
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-});
-
-app.delete('/blogs/:id', (req, res) => {
-    //to extract that id
-    const id = req.params.id;
-    //retrieve doc from DB
-    Blog.findByIdAndDelete(id)
-    .then((result) => {
-        //send back some json to frontend(browser)
-        //req is ajax so no redirect.therefore now this json data will have redirect property
-        res.json({ redirect:'/blogs' })
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-});
-
-app.get('/blogs/create', (req, res) => {
-    res.render('create', {title : 'Create a new blog'});
-});
 
 //redirects
 // app.get('/about-us', (req, res) => {
